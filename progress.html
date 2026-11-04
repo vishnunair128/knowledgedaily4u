@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Progress and Health Check | Lean Plate</title><meta name="description" content="Track your weight, check your BMI and healthy weight range, and tick off daily habits.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥗</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css"></head><body><div class="wrap">
+<nav><a class="logo" href="index.html">Lean Plate</a><div><a href="calculator.html">Calculator</a><a href="food.html">Food</a><a href="move.html">Move</a><a href="meals.html">Meals</a><a href="progress.html" aria-current="page">Progress</a><a href="macros.html">Macros</a><a href="myths.html">Myths</a><a href="plus.html">Plus</a><a href="faq.html">FAQ</a><button class="icon" id="tg" aria-label="Switch light and dark mode">◐</button></div></nav>
+<main id="top"><section id="progress"><h1>Track your progress</h1>
+<div class="eq"><div class="card" id="wtc"><h3>Weight tracker</h3><svg id="wc" viewBox="0 0 300 120" style="width:100%"></svg><p class="small" id="wsum" style="color:var(--mut)"></p>
+<p style="margin:0;display:flex;gap:8px;flex-wrap:wrap;align-items:center"><input type="number" id="wi" step="0.1" inputmode="decimal" aria-label="Today’s weight in kg" style="width:110px"><button class="add" id="wadd">Log weight</button><button id="wun" style="all:unset;cursor:pointer;color:var(--mut)">Undo last</button></p></div>
+<div class="card"><h3>Health check</h3><div id="hc"></div></div></div></section>
+<section id="habits">
+<h2>Today’s habits</h2>
+<p class="lead">Small things done daily beat big things done rarely. Tick them off.</p>
+<div class="habits" id="hab"></div>
+<p class="small" id="hn" style="color:var(--mut)"></p>
+</section></main>
+<footer><p class="note"><b>Please note:</b> This site gives general information and estimates, not medical advice. If you are pregnant, under 18, have diabetes, a thyroid condition, an eating disorder or any health condition, talk to a doctor or registered dietitian before changing how you eat.</p><p><a href="privacy-policy.html">Privacy Policy</a><a href="terms-and-conditions.html">Terms and Conditions</a><a href="cancellation-and-refund.html">Cancellation and Refund</a><a href="shipping-and-exchange.html">Shipping and Exchange</a><a href="contact-us.html">Contact Us</a></p><p>© Knowledge Daily · knowledgedaily4u.online</p></footer></div><div id="toast" role="status"></div><script src="app.js"></script></body></html>
