@@ -100,4 +100,5 @@ footer a{color:var(--brand);margin-right:14px;display:inline-block}
 .fcard{display:block;text-decoration:none;color:inherit;transition:transform .2s}.fcard:hover{transform:translateY(-3px)}.fcard p{color:var(--mut);margin:.3em 0 .8em}
 .tagp{display:inline-block;font:700 .75rem "DM Sans",sans-serif;padding:2px 9px;border-radius:999px;margin-right:6px;background:var(--c);color:#1b1740}
 .band{background:var(--pan);color:var(--pant)}.band p{color:var(--panm)}.band .add{background:#fff;color:#2a1b78}
+dialog{border:1px solid var(--line);border-radius:18px;background:var(--surf);color:var(--ink);padding:24px;max-width:420px;width:calc(100% - 40px)}nav a.chip{display:inline-flex;align-items:center;gap:8px;padding:3px 12px 3px 3px;border:1px solid var(--line);border-radius:999px;background:var(--surf);color:var(--ink);font-weight:700;border-bottom:1px solid var(--line)}dialog a{color:var(--brand)}dialog::backdrop{background:rgba(20,10,60,.55)}.add:disabled{opacity:.5;cursor:not-allowed}
 .prose{max-width:780px}.prose h2{font-size:1.25rem;margin:1.5em 0 .4em}.prose ul{padding-left:1.2em}.u{color:var(--mut)}
