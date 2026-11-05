@@ -25,20 +25,21 @@ dlg.querySelector("#lps").onclick=e=>{e.preventDefault();openDlg(up?"in":"up")};
 dlg.querySelector("#lpx").onclick=e=>{e.preventDefault();dlg.close()};
 dlg.querySelector("#lpg").onclick=()=>{dlg.close();go(m)};
 if(!dlg.open)dlg.showModal()}
-const gather=()=>({u:+localStorage.getItem("lp2_u")||Date.now(),s:LS("lp2_s"),d:LS("lp2_d"),w:LS("lp2_w")||[],h:LS("lp2_h")||{},plus:LS("lp2_plus"),t:LS("lp2_t")});
+const gather=()=>({u:+localStorage.getItem("lp2_u")||Date.now(),s:LS("lp2_s"),d:LS("lp2_d"),w:LS("lp2_w")||[],h:LS("lp2_h")||{},plus:LS("lp2_plus"),t:LS("lp2_t"),fav:LS("lp2_fav")||{},ci:LS("lp2_ci")||{}});
 async function push(){if(!user)return false;try{await setDoc(doc(db,"users",user.uid,"data","main"),gather());return true}catch(e){msg("Could not sync right now. Your data is still saved on this device.");return false}}
 async function pull(){try{
 const sn=await getDoc(doc(db,"users",user.uid,"data","main"));
-if(!sn.exists()){await push();msg("Your data is now saved to your account.");return}
+if(!sn.exists()){await push();msg("Your data is now saved to your account.");window.dispatchEvent(new Event("lp-synced"));return}
 const c=sn.data(),lu=+localStorage.getItem("lp2_u")||0,cn=(c.u||0)>lu;let ch=false;
 const wset=(k,v)=>{const n=JSON.stringify(v);if(localStorage.getItem(k)!==n){localStorage.setItem(k,n);ch=true}};
 const lh=LS("lp2_h")||{};wset("lp2_h",cn?Object.assign({},lh,c.h||{}):Object.assign({},c.h||{},lh));
 const m={};(cn?[...(LS("lp2_w")||[]),...(c.w||[])]:[...(c.w||[]),...(LS("lp2_w")||[])]).forEach(x=>m[x.d]=x);
 wset("lp2_w",Object.values(m).sort((a,b)=>a.d<b.d?-1:1));
-if(cn){if(c.s)wset("lp2_s",c.s);if(c.d)wset("lp2_d",c.d);if(c.t)wset("lp2_t",c.t)}
+if(cn){if(c.s)wset("lp2_s",c.s);if(c.d)wset("lp2_d",c.d);if(c.t)wset("lp2_t",c.t);if(c.fav)wset("lp2_fav",c.fav)}
+const lc=LS("lp2_ci")||{};wset("lp2_ci",cn?Object.assign({},lc,c.ci||{}):Object.assign({},c.ci||{},lc));
 const lp=LS("lp2_plus"),cp=c.plus,best=(lp&&cp)?(lp.exp>=cp.exp?lp:cp):(lp||cp);if(best)wset("lp2_plus",best);
-if(ch){localStorage.setItem("lp2_u",String(Math.max(lu,c.u||0)));msg("Synced from your account. Refreshing...");setTimeout(()=>location.reload(),800)}else await push();
-}catch(e){msg("Signed in, but syncing failed. Please check the Firestore rules.")}}
+if(ch){localStorage.setItem("lp2_u",String(Math.max(lu,c.u||0)));msg("Synced from your account. Refreshing...");setTimeout(()=>location.reload(),800)}else{await push();window.dispatchEvent(new Event("lp-synced"))}
+}catch(e){msg("Signed in, but syncing failed. Please check the Firestore rules.");window.dispatchEvent(new Event("lp-synced"))}}
 async function go(m){mode=m;
 try{const r=await signInWithPopup(auth,new GoogleAuthProvider()),isNew=getAdditionalUserInfo(r).isNewUser;
 if(m==="in"&&isNew){await deleteUser(r.user);mode=null;user=null;ui();announce();msg("No account found for this Google account. Please sign up first.");openDlg("up");return}
@@ -47,10 +48,10 @@ if(m==="up"&&isNew){try{await setDoc(doc(db,"users",user.uid,"data","profile"),{
 else if(m==="up")msg("You already have an account, so we signed you in.");
 mode=null;ui();announce();sessionStorage.setItem("lp_pulled","1");pull()
 }catch(e){mode=null;ui();msg(e&&e.code==="auth/popup-blocked"?"Please allow pop-ups for this site, then try again.":"Sign-in was not completed.")}}
-onAuthStateChanged(auth,u=>{user=u;if(mode)return;ui();announce();
+onAuthStateChanged(auth,u=>{user=u;if(mode)return;if(!u)try{localStorage.removeItem("lp_prof")}catch(e){}ui();announce();
 if(u&&!sessionStorage.getItem("lp_pulled")){sessionStorage.setItem("lp_pulled","1");pull()}if(!u)sessionStorage.removeItem("lp_pulled")});
 bIn.onclick=()=>openDlg("in");bUp.onclick=()=>openDlg("up");
-bOut.onclick=async()=>{if(await push()){["lp2_s","lp2_d","lp2_w","lp2_h","lp2_plus","lp2_u","lp2_sig","lp_prof"].forEach(k=>localStorage.removeItem(k));await signOut(auth);msg("Signed out. Data removed from this device.");setTimeout(()=>location.reload(),800)}else msg("Could not save before signing out, so you are still signed in.")};
+bOut.onclick=async()=>{if(await push()){["lp2_s","lp2_d","lp2_w","lp2_h","lp2_plus","lp2_u","lp2_sig","lp_prof","lp2_fav","lp2_ci"].forEach(k=>localStorage.removeItem(k));await signOut(auth);msg("Signed out. Data removed from this device.");setTimeout(()=>location.reload(),800)}else msg("Could not save before signing out, so you are still signed in.")};
 window.addEventListener("lp-saved",()=>{clearTimeout(timer);timer=setTimeout(push,2500)});
 window.addEventListener("lp-signout",()=>bOut.onclick());window.addEventListener("lp-open",e=>openDlg(e.detail));
 ui();

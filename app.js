@@ -17,7 +17,7 @@ const SK=["age","ht","wt","gw","pace"];
 const slDef=k=>{const im=imp();return{age:["Age","years",18,80,1],ht:im?["Height","in",55,79,1]:["Height","cm",140,200,1],wt:im?["Weight now","lb",88,330,1]:["Weight now","kg",40,150,.5],gw:im?["Goal weight","lb",77,330,1]:["Goal weight","kg",35,150,.5],pace:im?["Change per week","lb",.5,2,.5]:["Change per week","kg",.25,1,.25]}[k]};
 const toU=(k,v)=>!imp()?v:k==="ht"?v/2.54:(k==="wt"||k==="gw"||k==="pace")?v*LB:v;
 const fromU=(k,v)=>!imp()?v:k==="ht"?v*2.54:(k==="wt"||k==="gw"||k==="pace")?v/LB:v;
-function buildSliders(){lastU=S.units;$("sliders").innerHTML=SK.map(k=>{const d=slDef(k);return`<div class="sl"><div class="t"><label for="s_${k}">${d[0]}</label><span><b id="o_${k}"></b></span></div><input type="range" id="s_${k}" min="${d[2]}" max="${d[3]}" step="${d[4]}"></div>`}).join("");
+function buildSliders(){lastU=S.units;SK.forEach(k=>{const d=slDef(k);$("sl_"+k).innerHTML=`<div class="sl"><div class="t"><label for="s_${k}">${d[0]}</label><span><b id="o_${k}"></b></span></div><input type="range" id="s_${k}" min="${d[2]}" max="${d[3]}" step="${d[4]}"></div>`});
 SK.forEach(k=>$("s_"+k).addEventListener("input",e=>{S[k]=fromU(k,+e.target.value);render()}))}
 let S=Object.assign({units:"metric",sex:"f",age:30,ht:165,wt:75,gw:65,act:1.375,pace:0.5,style:"bal",goal:"lose"},ld("lp2_s")||{});
 const today=new Date().toDateString();
@@ -75,7 +75,7 @@ const tot=()=>D.log.reduce((t,x)=>{t.k+=x.k*x.q;t.p+=x.p*x.q;t.c+=x.c*x.q;t.f+=x
 function renderDay(){
 $("list").innerHTML=D.log.map((x,i)=>`<div class="item"><span>${esc(x.n)}<br><span class="small" style="color:var(--mut)">${Math.round(x.k)} kcal per serving</span></span><span class="qty"><button aria-label="Fewer ${esc(x.n)}" data-a="-" data-i="${i}">−</button><b>${x.q}</b><button aria-label="More ${esc(x.n)}" data-a="+" data-i="${i}">+</button></span><b>${Math.round(x.k*x.q)}</b></div>`).join("");
 $("none").hidden=D.log.length>0;
-const t=tot(),d=cur,exb=D.burn||0,rem=d.k-t.k+exb,fr=Math.min(1,t.k/(d.k+exb));$("bn").textContent=exb?"Exercise added today: "+exb+" kcal.":"These are rough estimates, so many people only eat back about half of what they burn.";renderWk();
+const t=tot(),d=cur,exb=D.burn||0,rem=d.k-t.k+exb,fr=Math.min(1,t.k/(d.k+exb));$("bn").textContent=exb?"Exercise added today: "+exb+" kcal.":"These are rough estimates, so many people only eat back about half of what they burn.";renderWk();window.dispatchEvent(new Event("lp-render"));
 arc("lr",0,fr);$("lr").style.stroke=rem<0?"var(--p)":"var(--brand)";
 $("left").textContent=Math.abs(Math.round(rem)).toLocaleString();$("leftl").textContent=rem<0?"kcal over":"kcal left";
 $("prog").innerHTML=[["Protein","p",d.p,"var(--p)"],["Carbs","c",d.c,"var(--c)"],["Fat","f",d.f,"var(--f)"]].map(m=>`<div class="row"><div class="top"><span>${m[0]}</span><span><b>${Math.round(t[m[1]])}</b> / ${m[2]} g</span></div><div class="bar"><i style="width:${Math.min(100,t[m[1]]/m[2]*100)}%;background:${m[3]}"></i></div></div>`).join("");
@@ -84,7 +84,7 @@ $("wn").textContent=D.water+" of 8 glasses"+(D.water>=8?". Well done!":"");
 $("hab").innerHTML=HAB.map((h,i)=>`<label class="${D.hab.includes(i)?"done":""}"><input type="checkbox" data-h="${i}" ${D.hab.includes(i)?"checked":""}>${h}</label>`).join("");
 $("hn").textContent=D.hab.length+" of "+HAB.length+" done today"+(D.hab.length===HAB.length?". Great day!":"");
 save()}
-function addItem(n,k,p,c,f){const e=D.log.find(x=>x.n===n);if(e)e.q++;else D.log.push({n,k,p,c,f,q:1});toast("Added "+n+", "+Math.round(k)+" kcal");renderDay()}
+function addItem(n,k,p,c,f){bumpFav(n,k,p,c,f);const e=D.log.find(x=>x.n===n);if(e)e.q++;else D.log.push({n,k,p,c,f,q:1});toast("Added "+n+", "+Math.round(k)+" kcal");renderDay()}
 
 function macroTab(){const m=MAC[tab],g=Math.min(m.max,cur[tab]||0);
 $("tabs").innerHTML=Object.keys(MAC).map(k=>`<button role="tab" class="${k===tab?"on":""}" data-t="${k}" style="${k===tab?"background:"+MAC[k].col:""}">${MAC[k].n}</button>`).join("");
@@ -164,8 +164,8 @@ const UNL={"sy6xoz":1,"vjh2uu":3,"10pu3fl":12};
 const hh=s=>{let h=5381;s=s.trim().toUpperCase();for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))>>>0;return h.toString(36)};
 const plusExp=()=>{const p=ld("lp2_plus");return p&&p.exp>Date.now()?p.exp:0};
 function gate(){const on=!!plusExp();
-[$("wtc")].forEach(c=>{if(c.tagName!=="H2"&&!c.classList.contains("lead")&&!c.classList.contains("lockbox"))c.hidden=!on});
-["progress"].forEach(id=>{const s=$(id);let lb=s.querySelector(".lockbox");if(!on&&!lb){lb=document.createElement("div");lb.className="lockbox card";lb.innerHTML='<h3>🔒 A Lean Plate Plus feature</h3><p>Unlock this with a Plus plan, from ₹9 for a month.</p><p style="margin:0"><a class="add" href="plus.html">See plans</a></p>';s.appendChild(lb)}if(on&&lb)lb.remove()})}
+[...$("wtc").children].forEach(c=>{if(c.tagName!=="H3"&&!c.classList.contains("lockbox"))c.hidden=!on});
+["wtc"].forEach(id=>{const s=$(id);let lb=s.querySelector(".lockbox");if(!on&&!lb){lb=document.createElement("div");lb.className="lockbox";lb.innerHTML='<h3>🔒 A Lean Plate Plus feature</h3><p>Unlock this with a Plus plan, from ₹9 for a month.</p><p style="margin:0"><a class="add" href="plus.html">See plans</a></p>';s.appendChild(lb)}if(on&&lb)lb.remove()})}
 function renderPlus(){const e=plusExp();$("pst").textContent=e?"Plus is active until "+new Date(e).toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"})+".":"Plus is not active on this device yet."}
 $("pgo").addEventListener("click",()=>{const m=UNL[hh($("pc").value)];if(!m){toast("That code is not valid. Check your payment confirmation.");return}const d=new Date(Math.max(Date.now(),plusExp()));d.setMonth(d.getMonth()+m);sv("lp2_plus",{exp:d.getTime()});$("pc").value="";toast("Plus unlocked. Enjoy!");gate();renderPlus()});
 const MF=[["Carbs make you fat, so low-carb is the only way to lose weight.","Healthy low-carb and healthy low-fat diets worked about equally well.","In a 12-month randomised trial of 609 adults, average weight loss was about 6.0 kg (13.2 lb) on low-carb and 5.3 kg (11.7 lb) on low-fat. Genes and insulin levels did not predict who did better. The best plan is the one you can keep following.","Gardner CD et al. JAMA, 2018;319(7):667–679.",[["Read the paper","https://doi.org/10.1001/jama.2018.0245"]]],
@@ -231,22 +231,44 @@ function draw(){const p=prof();
 if(!p){a.innerHTML=`<div class="card"><h2 style="margin-top:0">Sign in to see your profile</h2><p>Create a free account to save your progress and see it on every device.</p><p style="margin:0"><button class="add" id="ai">Sign in</button><button class="add ghosta" id="au">Sign up</button></p></div>`;$("ai").onclick=()=>window.dispatchEvent(new CustomEvent("lp-open",{detail:"in"}));$("au").onclick=()=>window.dispatchEvent(new CustomEvent("lp-open",{detail:"up"}));return}
 const st=LPstats(0),pe=plusExp(),since=p.since&&!isNaN(new Date(p.since))?dt(p.since):"";
 const prow=[row("Age",S.age+" years"),row("Sex",S.sex==="m"?"Male":"Female"),row("Height",fH(S.ht)),row("Weight",fK(S.wt)),S.goal!=="maintain"?row("Goal weight",fK(S.gw)):"",row("Goal",GL[S.goal]||""),row("Activity",AL[String(S.act)]||""),row("Daily target",cur.k.toLocaleString()+" kcal"),row("Protein, carbs, fat",cur.p+" g, "+cur.c+" g, "+cur.f+" g")].join("");
-const perf=[row("Days logged",st.logged),row("Current streak",st.streak+" day"+(st.streak===1?"":"s")),row("Longest streak",st.best+" day"+(st.best===1?"":"s")),row("Average daily calories",st.logged?st.avg.toLocaleString()+" kcal":"No data"),row("Workouts logged",st.wk),row("Calories burned",st.burn.toLocaleString()+" kcal"),row("Water per day",st.days?st.water.toFixed(1)+" glasses":"No data"),row("Habits completed",st.days?st.habit+"%":"No data"),row("Weight change",st.wn>1?fD(st.wLast-st.wFirst):"Not enough data")].join("");
+const perf=[row("Days logged",st.logged),row("Current streak",st.streak+" day"+(st.streak===1?"":"s")),row("Longest streak",st.best+" day"+(st.best===1?"":"s")),row("Average daily calories",st.logged?st.avg.toLocaleString()+" kcal":"No data"),row("Workouts logged",st.wk),row("Calories burned",st.burn.toLocaleString()+" kcal"),row("Water per day",st.days?st.water.toFixed(1)+" glasses":"No data"),row("Habits completed",st.days?st.habit+"%":"No data"),row("Daily check-ins",(()=>{const ci=ld("lp2_ci")||{},k=Object.keys(ci),g=k.filter(x=>ci[x].mood>=4).length;return k.length?k.length+" ("+g+" feeling good)":"None yet"})()),row("Weight change",st.wn>1?fD(st.wLast-st.wFirst):"Not enough data")].join("");
 a.innerHTML=`<div class="card" style="display:flex;gap:18px;align-items:center;flex-wrap:wrap">${p.photo?`<img src="${esc(p.photo)}" alt="" referrerpolicy="no-referrer" style="width:72px;height:72px;border-radius:50%">`:""}<div><h2 style="margin:0">${esc(p.name||"Your account")}</h2><div style="color:var(--mut)">${esc(p.email)}</div><div class="small" style="color:var(--mut)">Signed in with Google${since?" · Member since "+since:""}</div></div><div style="margin-left:auto">${pe?`<span class="tagp">Plus until ${dt(pe)}</span>`:`<span class="tagf">Free plan</span> <a href="plus.html">Upgrade</a>`}</div></div>
 <div class="eq" style="margin-top:16px"><div class="card"><h3>Your profile</h3>${prow}<p class="small" style="color:var(--mut);margin:10px 0 0">Change these on the Calculator page.</p></div><div class="card"><h3>Your performance to date</h3>${perf}</div></div>
-<p style="margin-top:16px"><a class="add" href="performance.html">See charts and history</a><button class="add ghosta" id="aso">Sign out</button></p>`;
+<p style="margin-top:16px"><a class="add" href="performance.html">See charts and history</a><button class="add ghosta" data-ci>Daily check-in</button><button class="add ghosta" id="aso">Sign out</button></p>`;
 $("aso").onclick=()=>window.dispatchEvent(new Event("lp-signout"))}
 window.addEventListener("lp-auth",draw);draw();
 })();
 (function(){
 const h=document.getElementById("hero1");if(!h)return;const orig=h.innerHTML;
-function draw(){const u=window.__lpUser;if(!u){h.innerHTML=orig;return}
-const st=LPstats(7),nm=esc((u.displayName||"there").split(" ")[0]);
+function draw(){const u=window.__lpUser||ld("lp_prof"),fh=$("feath"),bs=$("bandsec");
+if(fh)fh.textContent=u?"Jump back in":"Everything in one place";if(bs)bs.hidden=!!(u&&plusExp());
+if(!u){h.innerHTML=orig;return}
+const st=LPstats(7),nm=esc((u.displayName||u.name||"there").split(" ")[0]);
 h.innerHTML=`<h1>Welcome back, ${nm}.</h1><p class="lead">Here is how your last 7 days went.</p><div class="pg" style="margin:16px 0">`
 +LPcard("Average daily calories",st.logged?st.avg.toLocaleString()+" kcal":"No data","Target "+cur.k.toLocaleString()+" kcal")
 +LPcard("Current streak",st.streak+" day"+(st.streak===1?"":"s"),st.logged+" of 7 days logged")
 +LPcard("Workouts",st.wk,st.burn.toLocaleString()+" kcal burned")
++LPcard("Today",Math.round(tot().k).toLocaleString()+" kcal","of "+cur.k.toLocaleString()+" kcal target")
 +LPcard("Weight",fK(S.wt),S.goal==="maintain"?"Maintaining":"Goal "+fK(S.gw),"1.5rem")
-+`</div><p><a class="add" href="food.html">Log today’s food</a><a class="add ghosta" href="performance.html">See full performance</a><a class="add ghosta" href="account.html">My account</a></p>`}
++`</div><p><a class="add" href="food.html">Log today’s food</a><a class="add ghosta" href="performance.html">See full performance</a><a class="add ghosta" href="account.html">My account</a><button class="add ghosta" data-ci>Daily check-in</button></p>`}
 window.addEventListener("lp-auth",draw);draw();
 })();
+
+// ---- signed-in vs signed-out layer on every page ----
+function bumpFav(n,k,p,c,f){try{const F=ld("lp2_fav")||{};F[n]=F[n]||{k:k,p:p,c:c,f:f,n:0};F[n].n++;const ks=Object.keys(F).sort((x,y)=>F[y].n-F[x].n);ks.slice(30).forEach(x=>delete F[x]);sv("lp2_fav",F);localStorage.setItem("lp2_u",String(Date.now()))}catch(e){}}
+const LPin=()=>!!(window.__lpUser||ld("lp_prof"));
+const NOBAR=["privacy-policy","terms-and-conditions","cancellation-and-refund","shipping-and-exchange","contact-us","suggestions"],GUEST=["calculator","food","move","meals","progress","performance"];
+function LPlayer(){const inn=LPin(),slug=document.body.dataset.p||"",main=document.getElementById("top");
+document.body.classList.toggle("in",inn);document.body.classList.toggle("out",!inn);if(!main)return;
+let bar=document.getElementById("lpbar");if(!bar){bar=document.createElement("div");bar.id="lpbar";main.before(bar)}
+const u=window.__lpUser||ld("lp_prof")||{},nm=esc((u.displayName||u.name||"there").split(" ")[0]);
+if(inn&&!NOBAR.includes(slug)){bar.hidden=false;const st=LPstats(7),t=tot(),pct=Math.min(100,t.k/((cur&&cur.k)||1)*100);
+bar.className="lpbar";bar.innerHTML=`<span>👋 Hi <b>${nm}</b></span><span>🔥 <b>${st.streak}</b> day streak</span><span class="meter"><span class="small">Today ${Math.round(t.k).toLocaleString()} / ${((cur&&cur.k)||0).toLocaleString()} kcal</span><i><b style="width:${pct}%"></b></i></span><span>💧 <b>${D.water}</b>/8</span><a href="account.html">My account</a>`}
+else if(!inn&&GUEST.includes(slug)){bar.hidden=false;bar.className="lpguest";bar.innerHTML='<span>💡 Save your progress and see it on every device.</span><button class="add" id="gsu">Sign up free</button>';
+$("gsu").onclick=()=>window.dispatchEvent(new CustomEvent("lp-open",{detail:"up"}))}
+else bar.hidden=true;
+const h=main.querySelector("h1");if(h&&slug==="calculator"){if(!h.dataset.o)h.dataset.o=h.textContent;h.textContent=inn?"Your plan, "+(u.displayName||u.name||"there").split(" ")[0]:h.dataset.o}
+const fv=document.getElementById("fav");if(fv&&inn){const F=ld("lp2_fav")||{},ks=Object.keys(F).sort((x,y)=>F[y].n-F[x].n).slice(0,6);
+fv.innerHTML=ks.length?'<div class="small" style="color:var(--mut);margin-bottom:6px">Your usual foods</div><div class="chips" style="margin:0">'+ks.map((n,i)=>`<button data-i="${i}">${esc(n)}<span>${Math.round(F[n].k)}</span></button>`).join("")+"</div>":"";
+fv.onclick=e=>{const b=e.target.closest("button");if(!b)return;const n=ks[+b.dataset.i],x=F[n];addItem(n,x.k,x.p,x.c,x.f)}}}
+window.addEventListener("lp-auth",LPlayer);window.addEventListener("lp-render",LPlayer);LPlayer();

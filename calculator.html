@@ -3,36 +3,20 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥗</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css"></head><body><div class="wrap">
-<nav><a class="logo" href="index.html">Lean Plate</a><div><a href="calculator.html" aria-current="page">Calculator</a><a href="food.html">Food</a><a href="move.html">Move</a><a href="meals.html">Meals</a><a href="progress.html">Progress</a><a href="performance.html">Performance</a><a href="macros.html">Macros</a><a href="myths.html">Myths</a><a href="plus.html">Plus</a><a href="faq.html">FAQ</a><button class="icon" id="tg" aria-label="Switch light and dark mode">◐</button></div></nav>
-<main id="top"><div class="hero" id="plan">
-<div>
-<h1>Your calorie and macro plan</h1>
-<p class="lead">Calories, macros, meals, workouts and progress in one place. Move the sliders and watch your plan update live. No sign-up, and nothing leaves your device.</p>
-<div class="card">
-<div id="sliders"></div>
-<div class="lbl">Show sliders in</div><div class="seg" id="seg_units"></div><div class="lbl">Your goal</div><div class="seg" id="seg_goal"></div><div class="lbl">Sex</div><div class="seg" id="seg_sex"></div>
-<div class="lbl">Activity level</div><div class="seg" id="seg_act"></div>
-<div class="lbl">Macro style</div><div class="seg" id="seg_style"></div>
-</div>
-</div>
-
-<div class="panel" aria-live="polite">
-<div class="ringbox">
-<svg class="ring" viewBox="0 0 180 180" aria-hidden="true"><circle class="tr" cx="90" cy="90" r="74"/><circle id="ap" cx="90" cy="90" r="74" stroke="var(--p)"/><circle id="ac" cx="90" cy="90" r="74" stroke="var(--c)"/><circle id="af" cx="90" cy="90" r="74" stroke="var(--f)"/></svg>
-<div class="mid"><div class="n" id="kc">0</div><div class="m small">kcal a day</div></div>
-</div>
-<div class="mm">
-<div><span class="dot" style="background:var(--p)"></span>Protein<b id="gp">0</b><span class="m small">grams</span></div>
-<div><span class="dot" style="background:var(--c)"></span>Carbs<b id="gc">0</b><span class="m small">grams</span></div>
-<div><span class="dot" style="background:var(--f)"></span>Fat<b id="gf">0</b><span class="m small">grams</span></div>
-</div>
-<p class="m small" id="sub"></p>
-<div id="fl"></div>
-<h3 style="margin-top:14px">Your road to goal</h3>
-<svg viewBox="0 0 300 100" style="width:100%" aria-hidden="true"><path id="area" d="" fill="rgba(76,195,138,.18)"/><path id="line" d="" fill="none" stroke="#4cc38a" stroke-width="3" stroke-linecap="round"/><circle id="d0" r="5" fill="#eaf6ef"/><circle id="d1" r="5" fill="#4cc38a"/></svg>
-<p class="small" id="tl" style="margin:6px 0 0"></p>
-<div class="ms" id="ms"></div>
-</div>
-</div></main>
-<footer><p class="note"><b>Please note:</b> This site gives general information and estimates, not medical advice. If you are pregnant, under 18, have diabetes, a thyroid condition, an eating disorder or any health condition, talk to a doctor or registered dietitian before changing how you eat.</p><p><a href="privacy-policy.html">Privacy Policy</a><a href="terms-and-conditions.html">Terms and Conditions</a><a href="cancellation-and-refund.html">Cancellation and Refund</a><a href="shipping-and-exchange.html">Shipping and Exchange</a><a href="contact-us.html">Contact Us</a><a href="suggestions.html">Suggestions</a></p><p>© Knowledge Daily · knowledgedaily4u.online</p></footer></div><div id="toast" role="status"></div><script src="app.js"></script><script type="module" src="firebase-sync.js"></script></body></html>
+<link rel="stylesheet" href="style.css"></head><body data-p="calculator"><div class="wrap">
+<nav><a class="logo" href="index.html">Lean Plate</a><div class="navr"><button class="menu" id="menub" aria-haspopup="dialog">Menu</button><button class="icon" id="tg" aria-label="Switch light and dark mode">◐</button></div></nav>
+<dialog id="menud" class="menud"><div class="mh"><span>Menu</span><button class="icon" data-close aria-label="Close menu">×</button></div><div class="mg"><div><h3>Plan</h3><a href="calculator.html" aria-current="page"><b>Calculator</b><span>Your calories, TDEE and macros</span></a><a href="meals.html"><b>Meals</b><span>Meal ideas for your day</span></a></div><div><h3>Track</h3><a href="food.html"><b>Food log</b><span>Search foods and log your day</span></a><a href="move.html"><b>Move</b><span>Workouts and calories burned</span></a><a href="progress.html"><b>Progress</b><span>Health check, weight and habits</span></a><a href="performance.html"><b>Performance</b><span>Your charts and streaks</span></a></div><div><h3>Learn</h3><a href="macros.html"><b>Macros</b><span>Protein, carbs and fat</span></a><a href="myths.html"><b>Myths and facts</b><span>Checked against research</span></a><a href="faq.html"><b>FAQ</b><span>Common questions</span></a></div><div><h3>More</h3><a href="index.html"><b>Home</b><span>The start page</span></a><a href="plus.html"><b>Lean Plate Plus</b><span>Plans from ₹9</span></a><a href="account.html"><b>My account</b><span>Your profile and progress</span></a><a href="suggestions.html"><b>Suggestions</b><span>Tell us what to build next</span></a></div></div></dialog>
+<main id="top"><h1>Your calorie and macro plan</h1><p class="lead">Answer four quick questions and your plan appears. Nothing leaves your device unless you sign in.</p>
+<div class="wizgrid">
+<div class="card" id="wizcard"><div class="dots" id="stepdots"></div>
+<div data-step><h2>About you</h2><div class="lbl">Show sliders in</div><div class="seg" id="seg_units"></div><div class="lbl">Sex</div><div class="seg" id="seg_sex"></div><div id="sl_age" style="margin-top:26px"></div></div>
+<div data-step hidden><h2>Your body</h2><div id="sl_ht"></div><div id="sl_wt"></div></div>
+<div data-step hidden><h2>Your goal</h2><div class="seg" id="seg_goal"></div><div id="sl_gw" style="margin-top:26px"></div><div id="sl_pace"></div></div>
+<div data-step hidden><h2>Your lifestyle</h2><div class="lbl">How active are you?</div><div class="seg" id="seg_act"></div><div class="lbl">Macro style</div><div class="seg" id="seg_style"></div></div>
+<div class="wnav"><button class="add ghosta" id="wback" hidden>Back</button><button class="add" id="wnext">Next</button></div></div>
+<div id="respanel" hidden><p><button class="add ghosta" id="editplan" style="margin-left:0">Edit my details</button></p>
+<div class="panel" aria-live="polite"><div class="ringbox"><svg class="ring" viewBox="0 0 180 180" aria-hidden="true"><circle class="tr" cx="90" cy="90" r="74"/><circle id="ap" cx="90" cy="90" r="74" stroke="var(--p)"/><circle id="ac" cx="90" cy="90" r="74" stroke="var(--c)"/><circle id="af" cx="90" cy="90" r="74" stroke="var(--f)"/></svg><div class="mid"><div class="n" id="kc">0</div><div class="m small">kcal a day</div></div></div>
+<div class="mm"><div><span class="dot" style="background:var(--p)"></span>Protein<b id="gp">0</b><span class="m small">grams</span></div><div><span class="dot" style="background:var(--c)"></span>Carbs<b id="gc">0</b><span class="m small">grams</span></div><div><span class="dot" style="background:var(--f)"></span>Fat<b id="gf">0</b><span class="m small">grams</span></div></div>
+<p class="m small" id="sub"></p><div id="fl"></div>
+<details class="dt"><summary>Your road to goal</summary><svg viewBox="0 0 300 100" style="width:100%;margin-top:14px" aria-hidden="true"><path id="area" d="" fill="rgba(76,195,138,.18)"/><path id="line" d="" fill="none" stroke="#5ef0b8" stroke-width="3" stroke-linecap="round"/><circle id="d0" r="5" fill="#eaf6ef"/><circle id="d1" r="5" fill="#5ef0b8"/></svg><p class="small" id="tl" style="margin:8px 0 0"></p><div class="ms" id="ms"></div></details></div></div></div></main>
+<footer><p class="fl"><a href="privacy-policy.html">Privacy Policy</a><a href="terms-and-conditions.html">Terms and Conditions</a><a href="cancellation-and-refund.html">Cancellation and Refund</a><a href="shipping-and-exchange.html">Shipping and Exchange</a><a href="contact-us.html">Contact Us</a><a href="suggestions.html">Suggestions</a></p><p class="small">General information and estimates, not medical advice. Please talk to a doctor or registered dietitian before changing how you eat, especially if you are pregnant, under 18 or have a health condition.</p><p class="small">© Knowledge Daily · knowledgedaily4u.online</p></footer></div><div id="toast" role="status"></div><script src="app.js"></script><script src="extras.js"></script><script type="module" src="firebase-sync.js"></script></body></html>
