@@ -141,3 +141,18 @@ p.querySelector("#chf").onsubmit=e=>{e.preventDefault();const t=chi.value;chi.va
 const open=m=>{p.hidden=false;b.hidden=true;if(!chm.children.length)say("b","Hi! I am a basic health helper, not a doctor. Ask me about calories, protein, water, sleep or exercise.");if(m)ask(m);chi.focus()};
 b.onclick=()=>open();p.querySelector("#chx").onclick=()=>{p.hidden=true;b.hidden=false};window.LPchatOpen=open;
 })();
+
+/* ---------- automatic upgrade after payment ---------- */
+(function(){
+const pc=document.getElementById("paycard"),note=t=>{const m=document.getElementById("pmsg");if(m)m.textContent=t};
+const ui=()=>{if(!pc)return;const pay=!!window.LP_PAY,u=window.__lpUser||null;document.getElementById("payauto").hidden=!(pay&&u);document.getElementById("paycode").hidden=pay;document.getElementById("paynote").hidden=!(pay&&!u)};
+const done=()=>{renderPlus();gate();window.dispatchEvent(new Event("lp-render"))};
+if(pc){ui();window.addEventListener("lp-auth",ui);
+document.getElementById("pclaim").onclick=async()=>{const v=document.getElementById("pid").value.trim();if(!/^pay_[A-Za-z0-9]{8,30}$/.test(v)){note("That does not look like a payment ID. It starts with pay_.");return}
+if(!window.LPclaim){note("Please try again in a moment.");return}note("Checking with Razorpay...");const r=await window.LPclaim(v);if(r.error)note(r.error);else{note("Done! Your plan is now active.");done()}};
+document.getElementById("prefresh").onclick=async()=>{note("Checking...");if(window.LPrefreshPlan)await window.LPrefreshPlan();done();note(plusExp()?"Your plan is active.":"No payment found yet. It can take a minute. If you paid with a different email, use Verify my payment.")}}
+function poll(){let n=0;const iv=setInterval(async()=>{n++;if(window.LPrefreshPlan)await window.LPrefreshPlan();if(plusExp()){clearInterval(iv);done();toast("Plus is active. Thank you!")}else if(n>45)clearInterval(iv)},8000)}
+document.addEventListener("click",ev=>{const a=ev.target.closest('a[href^="https://rzp.io"]');if(!a||!window.LP_PAY)return;
+if(!LPin()){ev.preventDefault();toast("Please sign up or sign in first, so we can upgrade you automatically.");window.dispatchEvent(new CustomEvent("lp-open",{detail:"up"}));return}
+toast("After you pay, come back here. Your plan upgrades automatically.");poll()});
+})();
