@@ -4,7 +4,7 @@ import{getFirestore,doc,getDoc,setDoc}from"https://www.gstatic.com/firebasejs/10
 const CFG={apiKey:"AIzaSyAFibTZCROLP67UxEnW7ytA_iO_S-WhgeQ",authDomain:"knowledgedaily4u-be8e8.firebaseapp.com",projectId:"knowledgedaily4u-be8e8",storageBucket:"knowledgedaily4u-be8e8.firebasestorage.app",messagingSenderId:"56983472658",appId:"1:56983472658:web:76df0d495c913c79e066cb"};
 const app=initializeApp(CFG),auth=getAuth(app),db=getFirestore(app);
 const LS=k=>{try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}};
-const PAY_URL=""; // Paste your payments worker address here (see payments-worker.js) to turn on automatic upgrades
+const PAY_URL="https://leanplate-pay.vishnunair128-99e.workers.dev";
 window.LP_PAY=!!PAY_URL;
 let user=null,timer=null,mode=null;
 function mk(t,c){const b=document.createElement("button");b.className=c;b.style.cssText="padding:7px 14px;font-size:.9rem;margin:0";b.textContent=t;return b}
