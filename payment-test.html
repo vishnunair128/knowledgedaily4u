@@ -1,0 +1,264 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Lean Plate - Payment Test</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; }
+    .test-wrap { max-width: 700px; margin: 35px auto; padding: 20px; }
+    .test-banner { background: #fff3cd; color: #664d03; padding: 15px; border-radius: 9px; margin-bottom: 20px; }
+    .test-card { border: 1px solid #aaa; border-radius: 12px; padding: 18px; margin: 15px 0; }
+    .test-card button { padding: 12px 20px; cursor: pointer; }
+    .test-card button:disabled { opacity: .45; cursor: not-allowed; }
+    #result { padding: 15px; border: 1px solid #aaa; border-radius: 9px; white-space: pre-wrap; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <div class="test-wrap">
+    <nav>
+      <a href="index.html">Lean Plate</a>
+      <span id="tg" style="display:none"></span>
+    </nav>
+
+    <h1>Lean Plate Payment Test</h1>
+
+    <div class="test-banner">
+      TEST MODE ONLY. No real money will be charged.
+      These purchases do not activate your live Plus plan.
+    </div>
+
+    <p id="account">Checking Google sign-in...</p>
+
+    <button id="login" type="button">Sign in with Google</button>
+
+    <h2>Test Plus Plans</h2>
+
+    <div class="test-card">
+      <h3>1 Month - ₹9</h3>
+      <p>One-time test payment</p>
+      <button data-months="1" disabled>Test ₹9 Payment</button>
+    </div>
+
+    <div class="test-card">
+      <h3>3 Months - ₹25</h3>
+      <p>One-time test payment</p>
+      <button data-months="3" disabled>Test ₹25 Payment</button>
+    </div>
+
+    <div class="test-card">
+      <h3>12 Months - ₹79</h3>
+      <p>One-time test payment</p>
+      <button data-months="12" disabled>Test ₹79 Payment</button>
+    </div>
+
+    <button id="check" type="button">Check Test Membership</button>
+
+    <div id="result" role="status" aria-live="polite">
+      Waiting for sign-in.
+    </div>
+
+    <div id="toast" role="status"></div>
+  </div>
+
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+  <script type="module">
+    import "./firebase-sync.js";
+
+    const API =
+      "https://leanplate-pay-test.vishnunair128-99e.workers.dev";
+
+    let user = window.__lpUser || null;
+
+    const account = document.getElementById("account");
+    const result = document.getElementById("result");
+    const login = document.getElementById("login");
+    const prices = { 1: 900, 3: 2500, 12: 7900 };
+
+    function message(text) {
+      result.textContent = text;
+    }
+
+    function updateUser() {
+      account.textContent = user
+        ? "Signed in: " + user.email
+        : "Not signed in.";
+
+      login.hidden = !!user;
+
+      document.querySelectorAll("[data-months]").forEach(button => {
+        button.disabled = !user;
+      });
+    }
+
+    window.addEventListener("lp-auth", event => {
+      user = event.detail;
+      updateUser();
+
+      if (user) {
+        checkPlan();
+      } else {
+        message("Sign in to begin testing.");
+      }
+    });
+
+    login.onclick = () => {
+      window.dispatchEvent(
+        new CustomEvent("lp-open", { detail: "in" })
+      );
+    };
+
+    async function request(path, method = "GET", body = null) {
+      if (!user) {
+        throw new Error("Please sign in first.");
+      }
+
+      const token = await user.getIdToken();
+
+      const response = await fetch(API + path, {
+        method,
+        headers: {
+          "Authorization": "Bearer " + token,
+          "Content-Type": "application/json"
+        },
+        ...(body ? { body: JSON.stringify(body) } : {})
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Request failed.");
+      }
+
+      return data;
+    }
+
+    async function checkPlan() {
+      if (!user) {
+        message("Please sign in first.");
+        return;
+      }
+
+      try {
+        const data = await request("/plan");
+
+        if (data.exp && data.exp > Date.now()) {
+          message(
+            "TEST MEMBERSHIP ACTIVE\nExpires: " +
+            new Date(data.exp).toLocaleString()
+          );
+        } else {
+          message("No active test membership yet.");
+        }
+      } catch (error) {
+        message("Error: " + error.message);
+      }
+    }
+
+    document.getElementById("check").onclick = checkPlan;
+
+    async function startPayment(months) {
+      if (!user) {
+        message("Please sign in first.");
+        return;
+      }
+
+      if (!window.Razorpay) {
+        message("Razorpay Checkout could not load.");
+        return;
+      }
+
+      try {
+        message("Creating your test order...");
+
+        const order = await request(
+          "/order",
+          "POST",
+          { months }
+        );
+
+        if (
+          !order.key_id?.startsWith("rzp_test_") ||
+          order.amount !== prices[months] ||
+          order.currency !== "INR"
+        ) {
+          throw new Error(
+            "Test configuration mismatch. Payment blocked."
+          );
+        }
+
+        const checkout = new Razorpay({
+          key: order.key_id,
+          amount: order.amount,
+          currency: order.currency,
+          name: "Lean Plate TEST",
+          description: months + " month test plan",
+          order_id: order.order_id,
+          prefill: {
+            email: user.email || ""
+          },
+          theme: {
+            color: "#2563eb"
+          },
+          handler: async function (payment) {
+            message("Payment completed. Verifying...");
+
+            try {
+              const verified = await request(
+                "/verify",
+                "POST",
+                {
+                  razorpay_payment_id:
+                    payment.razorpay_payment_id,
+                  razorpay_order_id:
+                    payment.razorpay_order_id,
+                  razorpay_signature:
+                    payment.razorpay_signature
+                }
+              );
+
+              message(
+                "TEST PAYMENT VERIFIED!\n" +
+                "Membership expires: " +
+                new Date(verified.exp).toLocaleString()
+              );
+            } catch (error) {
+              message(
+                "Payment response received, but verification " +
+                "is pending: " + error.message +
+                "\nUse Check Test Membership to check again."
+              );
+            }
+          },
+          modal: {
+            ondismiss: function () {
+              message("Test checkout closed.");
+            }
+          }
+        });
+
+        checkout.on("payment.failed", function () {
+          message("Test payment failed. No membership granted.");
+        });
+
+        checkout.open();
+
+      } catch (error) {
+        message("Error: " + error.message);
+      }
+    }
+
+    document.querySelectorAll("[data-months]").forEach(button => {
+      button.onclick = () => {
+        startPayment(Number(button.dataset.months));
+      };
+    });
+
+    updateUser();
+  </script>
+</body>
+</html>
